@@ -90,7 +90,7 @@ export class MineService {
 
 	calculatePayout (deposit: number, mineCount: number, tilesTurned: number) {
 		// Increase the payout based on how many tiles have turned, and multiply this by a factor based on the mine count, round to 2 decimal places
-		const payout = deposit * (1 + (tilesTurned / 5) * (mineCount / 3.75))
+		const payout = deposit * (1 + (tilesTurned / 5) * (mineCount / 3))
 		return Math.round(payout * 100) / 100;
 	}
 }

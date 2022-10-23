@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export type GameDocument = Game & Document;
 
@@ -7,7 +7,7 @@ export type GameDocument = Game & Document;
 export class Game {
     
     @Prop()
-    user: string;
+    user: Types.ObjectId;
 
     @Prop()
     game: string;

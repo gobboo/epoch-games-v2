@@ -31,6 +31,8 @@ export class MineGateway {
     if (!data) return;
 
     const [deposit, mineCount] = data;
+
+    if (mineCount < 1 || mineCount > 24) return { error: 'Invalid Mine Count' };
     
     // Check for an existing game
     const mine = await this.MineService.findGameByUser(client.user, '-info.minePositions -serverSeed');
