@@ -2,8 +2,7 @@ import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Game } from './model/Game.schema';
-import { UserDocument } from '../../User/model/User.schema';
-import { UserService } from '../../User/User.service';
+import { UserDocument } from '../../user/model/User.schema';
 import { generateServerSeeds, generateTiles } from '../util';
 
 @Injectable()
