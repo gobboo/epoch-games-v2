@@ -1,0 +1,51 @@
+<html>
+
+<head>
+  <script type="module">
+    import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+    const socket = io('http://localhost:3000');
+    const status = document.getElementById('status');
+
+    let currentGame = []
+
+    socket.on('connect', function () {
+      console.log('Connected');
+      status.innerHTML = 'Connected';
+
+      socket.emit('mine:create', (info) => {
+        console.log(info);
+        currentGame = info;
+      });
+
+      function turnTile(tile) {
+        socket.emit('mine:turn', tile, (info) => {
+          console.log(info);
+          currentGame = info;
+        });
+      }
+
+    });
+
+    socket.on('connect', function () {
+      status.innerHTML = 'Connected';
+    });
+
+
+
+    socket.on('reconnect', function () {
+      status.innerHTML = 'Reconnected';
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Socket.IO</h1>
+  <p id="status">Not connected</p>
+
+  <script>
+
+
+  </script>
+
+  </body >
+</html >
