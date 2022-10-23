@@ -51,7 +51,7 @@ export class MineService {
 	}
 
 	async getLastGameNonce(User: UserDocument) {
-		const game = await this.GameModel.findOne({ user: User._id, status: 'in_progress' }, 'nonce').sort({ nonce: -1 });
+		const game = await this.GameModel.findOne({ user: User._id }, 'nonce').sort({ nonce: -1 });
 
 		if (!game) {
 			return -1;
