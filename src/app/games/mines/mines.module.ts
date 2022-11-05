@@ -3,12 +3,12 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { UserModule } from "../../user/user.module";
 import { MineGateway } from "./mines.gateway";
 import { MineService } from "./mines.service";
-import { GameSchema } from "./model/Game.schema";
+import { MinesSchema } from "../model/Mines.schema";
 
 @Module({
 	imports: [
 		MongooseModule.forFeature([
-			{ name: 'Game', schema: GameSchema }
+			{ name: 'MinesGame', schema: MinesSchema }
 		]),
 		UserModule
 	],

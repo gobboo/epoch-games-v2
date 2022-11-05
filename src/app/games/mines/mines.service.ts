@@ -1,13 +1,13 @@
 import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Game } from './model/Game.schema';
+import { MinesGame } from '../model/Mines.schema';
 import { UserDocument } from '../../user/model/User.schema';
-import { generateServerSeeds, generateTiles } from '../util';
+import { generateServerSeeds, generateTiles } from './mines.util';
 
 @Injectable()
 export class MineService {
-	constructor(@InjectModel(Game.name) private readonly GameModel: Model<Game>) { }
+	constructor(@InjectModel(MinesGame.name) private readonly GameModel: Model<MinesGame>) { }
 
 	async findGameById (id: string) {
 		const game = await this.GameModel.findById(id);
@@ -32,7 +32,7 @@ export class MineService {
 	async createGame (clientSeed: string, nonce: number, deposit: number, mineCount: number, User: UserDocument) {
 		const { serverSeed, serverSeedHash } = generateServerSeeds();
 
-		const Game = await this.GameModel.create({
+		const MinesGame = await this.GameModel.create({
 				serverSeed: serverSeed,
 				serverSeedHash: serverSeedHash,
 				clientSeed: clientSeed,
@@ -47,7 +47,7 @@ export class MineService {
 				user: User._id,
 		});
 
-		return { serverSeedHash, clientSeed, nonce: Game.nonce, bets: Game.bets, info: { tilesTurned: [] }, status: Game.status };
+		return { serverSeedHash, clientSeed, nonce: MinesGame.nonce, bets: MinesGame.bets, info: { tilesTurned: [] }, status: MinesGame.status };
 	}
 
 	async getLastGameNonce(User: UserDocument) {
@@ -62,26 +62,26 @@ export class MineService {
 
 	async uncoverTile (User: UserDocument, tile: number) {
 		// Get game 
-		const Game = await this.findGameByUser(User, '');
+		const MinesGame = await this.findGameByUser(User, '');
 
 		// Check if tile is already uncovered
-		if (Game.info.tilesTurned.includes(tile)) {
-			return { status: Game.status, info: { tilesTurned: Game.info.tilesTurned } };
+		if (MinesGame.info.tilesTurned.includes(tile)) {
+			return { status: MinesGame.status, info: { tilesTurned: MinesGame.info.tilesTurned } };
 		}
 
 		// Check if tile is a mine
-		if (Game.info.minePositions.includes(tile)) {
+		if (MinesGame.info.minePositions.includes(tile)) {
 			// Update game status
-			Game.status = 'lost';
+			MinesGame.status = 'lost';
 		}
 
 		// Add tile to tilesTurned
-		Game.info.tilesTurned.push(tile);
+		MinesGame.info.tilesTurned.push(tile);
 
 		// Update game
-		await this.GameModel.updateOne({ _id: Game._id }, { $set: { status: Game.status, info: Game.info } });
+		await this.GameModel.updateOne({ _id: MinesGame._id }, { $set: { status: MinesGame.status, info: MinesGame.info } });
 
-		return { status: Game.status, info: { tilesTurned: Game.info.tilesTurned, minePositions: Game.status === 'lost' ? Game.info.minePositions : [] } };
+		return { status: MinesGame.status, info: { tilesTurned: MinesGame.info.tilesTurned, minePositions: MinesGame.status === 'lost' ? MinesGame.info.minePositions : [] } };
 	}
 
 	async updateGameStatus(_id: Types.ObjectId, status: string) {

@@ -1,4 +1,4 @@
-import { Game } from './model/Game.schema';
+import { MinesGame } from '../model/Mines.schema';
 import { WsGuard } from './../events.guard';
 import {
   ConnectedSocket,
@@ -27,10 +27,10 @@ export class MineGateway {
 
   @UseGuards(WsGuard)
   @SubscribeMessage('mine:create')
-  async createGame(@MessageBody() data: number[], @ConnectedSocket() client: Socket & { user: UserDocument }): Promise<any> {
+  async createGame(@MessageBody() data: { deposit: number, mineCount: number }, @ConnectedSocket() client: Socket & { user: UserDocument }): Promise<any> {
     if (!data) return;
 
-    const [deposit, mineCount] = data;
+    const { deposit, mineCount } = data;
 
     if (mineCount < 1 || mineCount > 24) return { error: 'Invalid Mine Count' };
     
@@ -49,11 +49,11 @@ export class MineGateway {
     const lastGameNonce = await this.MineService.getLastGameNonce(client.user);
 
     // Take the users balance
-    await this.UserService.updateBalance(client.user, -deposit);
+    await this.UserService.updateBalance(client.user._id, -deposit);
 
-    const Game = await this.MineService.createGame(client.user.clientSeed, lastGameNonce + 1, deposit, mineCount, client.user);
+    const MinesGame = await this.MineService.createGame(client.user.clientSeed, lastGameNonce + 1, deposit, mineCount, client.user);
 
-    return Game;
+    return { success: true, ...MinesGame };
   }
 
   @UseGuards(WsGuard)
@@ -62,14 +62,14 @@ export class MineGateway {
     const mine = await this.MineService.findGameByUser(client.user, '-info.minePositions -serverSeed');
 
     if (!mine) {
-      return null;
+      return { success: false, error: 'No Game Found' };
     }
 
     // Turn the Games Tile
     const updatedGame = await this.MineService.uncoverTile(client.user, tile);
 
     // Check if the game is over
-    return { ...updatedGame, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, updatedGame.info.tilesTurned.length) };
+    return { success: true, ...updatedGame, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, updatedGame.info.tilesTurned.length) };
   }
 
   @UseGuards(WsGuard)
@@ -78,26 +78,26 @@ export class MineGateway {
     const mine = await this.MineService.findGameByUser(client.user, '-serverSeed');
 
     // Check if the game is over
-    if (mine.status !== 'in_progress') {
-      return false;
+    if (!mine || mine.status !== 'in_progress') {
+      return { success: false, error: 'No Game Found' };
     }
 
     // Make sure that no mines have been uncovered
-    if (mine.info.tilesTurned.some((tile) => mine.info.minePositions.includes(tile))) {
-      return false;
+    if (!mine || mine.info.tilesTurned.some((tile) => mine.info.minePositions.includes(tile))) {
+      return { success: false, message: 'You can\'t cashout with a mine uncovered.' };
     }
 
     // Calculate the payout
     const payout = this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, mine.info.tilesTurned.length);
 
     // Update the users balance
-    await this.UserService.updateBalance(client.user, payout);
+    await this.UserService.updateBalance(client.user._id, payout);
 
     // Update the game status
     await this.MineService.updateGameStatus(mine._id, 'cashed_out');
 
     // Check if the game is over
-    return { ...mine, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, mine.info.tilesTurned.length) };
+    return { success: true, ...mine, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, mine.info.tilesTurned.length) };
   }
 
   @UseGuards(WsGuard)
@@ -107,10 +107,10 @@ export class MineGateway {
     const mine = await this.MineService.findGameByUser(client.user, '-info.minePositions -serverSeed');
 
     if (!mine) {
-      return null;
+      return { success: true, game: null };
     }
 
     // Return an existing game
-    return { ...mine, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, mine.info.tilesTurned.length) };
+    return { success: true, ...mine, potentialWin: this.MineService.calculatePayout(mine.bets[0].deposit, mine.info.mineCount, mine.info.tilesTurned.length) };
   }
 }

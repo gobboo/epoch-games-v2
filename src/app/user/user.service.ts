@@ -31,11 +31,10 @@ export class UserService {
 		return user.balance >= amount;
 	}
 
-	async updateBalance(user: Partial<UserDocument>, amount: number): Promise<any> {
-		const newBalance = Math.round((user.balance + amount) * 100) / 100;
-		const updatedUser = await this.UserModel.findByIdAndUpdate(user._id, { balance: newBalance > 0 ? newBalance : 0 }, { new: true });
+	async updateBalance(id: string, amount: number): Promise<any> {
+		await this.UserModel.updateOne({ _id: id }, { $inc: { balance: amount } });
 
-		return updatedUser;
+		return true;
 	}
 }
 

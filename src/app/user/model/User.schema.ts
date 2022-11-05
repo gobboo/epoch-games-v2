@@ -1,8 +1,13 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { createHash, randomBytes } from "crypto";
 import { Document } from "mongoose";
 
 export type UserDocument = User & Document;
 
+function generateClientSeed() {
+	// Using a crypto library to generate a random string
+	return createHash('sha256').update(randomBytes(256)).digest('hex');
+}
 @Schema()
 export class User {
 
@@ -41,7 +46,7 @@ export class User {
 		avatar: string;
 	}
 
-	@Prop()
+	@Prop({ default: generateClientSeed() })
 	clientSeed: string;
 
 	@Prop({ default: Date.now() })

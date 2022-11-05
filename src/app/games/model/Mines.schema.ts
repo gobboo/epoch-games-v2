@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document, Types } from "mongoose";
 
-export type GameDocument = Game & Document;
+export type MinesDocument = MinesGame & Document;
 
 @Schema()
-export class Game {
+export class MinesGame {
     
     @Prop()
     user: Types.ObjectId;
@@ -41,4 +41,4 @@ export class Game {
     status: string;
 }
 
-export const GameSchema = SchemaFactory.createForClass(Game);
+export const MinesSchema = SchemaFactory.createForClass(MinesGame);
