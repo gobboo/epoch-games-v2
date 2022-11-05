@@ -11,7 +11,6 @@ import { Injectable, UseGuards } from '@nestjs/common';
 import { UserDocument } from '../../user/model/User.schema';
 import { UserService } from 'src/app/user/user.service';
 import { DiceService } from './dice.service';
-import { createPublicKey } from 'crypto';
 
 @Injectable()
 @WebSocketGateway({

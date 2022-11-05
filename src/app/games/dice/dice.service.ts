@@ -2,10 +2,10 @@ import { UserDocument } from './../../user/model/User.schema';
 import { Model, PopulatedDoc, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DiceGame } from '../model/DiceDuel.Schema';
 import { generateServerSeeds } from '../mines/mines.util';
 import { createHash } from 'crypto';
 import { HttpService } from '@nestjs/axios';
+import { DiceGame } from './../model/DiceDuel.schema';
 
 @Injectable()
 export class DiceService {
