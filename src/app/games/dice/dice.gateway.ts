@@ -31,7 +31,7 @@ export class DiceGateway {
     
     const { buyIn, maxPlayers } = data;
     
-    if (buyIn < 2 || buyIn > 10000) return { success: false, message: 'Buy-In amount must be between 2 - 10000.' };
+    if (buyIn < 2) return { success: false, message: 'Buy-In amount must be between 2 - 10000.' };
 
     if (maxPlayers < 2 || maxPlayers > 8) return { success: false, message: 'Invalid max players, you can only have 2 - 8.' };
     console.log(buyIn);
