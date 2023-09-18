@@ -51,6 +51,10 @@ export class RouletteService {
 	async rollGame(gameId: Types.ObjectId): Promise<RouletteDocument> {
 		const game = await this.GameModel.findOne({ _id: gameId, isCurrentGame: true, status: 'WAITING_FOR_PLAYERS' });
 
+		if (!game) {
+			return;
+		}
+
 		const roll = this.generateRouletteTicket(game.serverSeed, game.publicSeed, game.nonce);
 
 		game.roll = roll;
